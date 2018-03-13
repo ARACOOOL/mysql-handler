@@ -6,6 +6,7 @@ use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
 use PDO;
 use PDOStatement;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class MySQLHandler
@@ -36,20 +37,22 @@ class MysqlHandler extends AbstractProcessingHandler
     /**
      * @var array default fields that are stored in db
      */
-    private $defaultFields = array('id', 'channel', 'level', 'short_message', 'full_message', 'payload', 'time');
-
+    private $defaultFields = array('id', 'channel', 'level', 'level_name', 'full_message', 'payload', 'message', 'time');
+    /**
+     * @var array
+     */
+    private $defaultContextFields = ['full_message' => null, 'payload' => null];
     /**
      * @var array
      */
     private $fields = array();
 
     /**
-     * Constructor of this class, sets the PDO and calls parent constructor
-     *
-     * @param PDO      $pdo PDO Connector for the database
-     * @param bool     $table Table in the database to store the logs in
-     * @param array    $additionalFields Additional Context Parameters to store in database
-     * @param bool|int $level Debug level which this handler should store
+     * MysqlHandler constructor.
+     * @param PDO|null $pdo
+     * @param          $table
+     * @param array    $additionalFields
+     * @param int      $level
      * @param bool     $bubble
      */
     public function __construct(
@@ -73,19 +76,20 @@ class MysqlHandler extends AbstractProcessingHandler
     private function initialize()
     {
         $this->pdo->exec(
-            'CREATE TABLE ' . $this->table . '
+            'CREATE TABLE IF NOT EXISTS ' . $this->table . '
 (
     id VARCHAR(30) PRIMARY KEY NOT NULL,
     channel VARCHAR(60) NOT NULL,
     level INT NOT NULL,
-    short_message VARCHAR(250) NOT NULL,
+    level_name VARCHAR(10) NOT NULL,
+    message VARCHAR(250) NOT NULL,
     full_message TEXT,
     payload TEXT,
     time DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
-CREATE INDEX logs_channel_index ON logs (channel) USING HASH;
-CREATE INDEX logs_level_index ON logs (level) USING HASH;
-CREATE INDEX logs_time_index ON logs (time) USING HASH;'
+CREATE INDEX logs_channel_index ON ' . $this->table . ' (channel) USING HASH;
+CREATE INDEX logs_level_index ON ' . $this->table . ' (level) USING HASH;
+CREATE INDEX logs_time_index ON ' . $this->table . ' (time) USING HASH;'
         );
 
         $this->initialized = true;
@@ -99,10 +103,7 @@ CREATE INDEX logs_time_index ON logs (time) USING HASH;'
         $columns = '';
         $fields  = '';
         foreach ($this->fields as $key => $f) {
-            if ($f == 'id') {
-                continue;
-            }
-            if ($key == 1) {
+            if ($key == 0) {
                 $columns .= "$f";
                 $fields  .= ":$f";
                 continue;
@@ -133,16 +134,19 @@ CREATE INDEX logs_time_index ON logs (time) USING HASH;'
         /**
          * reset $fields with default values
          */
-        $this->fields = $this->defaultFields;
+        $this->fields      = $this->defaultFields;
+        $record['context'] = array_merge($this->defaultContextFields, $record['context']);
 
         //'context' contains the array
         $contentArray = [
-            'channel'       => $record['channel'],
-            'level'         => $record['level'],
-            'short_message' => $record['short_message'],
-            'full_message'  => $record['full_message'],
-            'payload'       => json_encode($record['short_message']),
-            'time'          => $record['datetime']->format('Y-m-d H:i:s')
+            'id'           => base64_encode(Uuid::uuid4()->getBytes()),
+            'channel'      => $record['channel'],
+            'level'        => $record['level'],
+            'level_name'   => $record['level_name'],
+            'message'      => $record['message'],
+            'full_message' => $record['context']['full_message'],
+            'payload'      => is_null($record['context']['payload']) ? null : json_encode($record['context']['payload']),
+            'time'         => $record['datetime']->format('Y-m-d H:i:s')
         ];
 
         // unset array keys that are passed put not defined to be stored, to prevent sql errors
@@ -160,7 +164,6 @@ CREATE INDEX logs_time_index ON logs (time) USING HASH;'
         }
 
         $this->prepareStatement();
-
         $this->statement->execute($contentArray);
     }
 }
