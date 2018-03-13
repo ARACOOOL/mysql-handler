@@ -51,14 +51,12 @@ class MysqlHandler extends AbstractProcessingHandler
      * MysqlHandler constructor.
      * @param PDO|null $pdo
      * @param          $table
-     * @param array    $additionalFields
      * @param int      $level
      * @param bool     $bubble
      */
     public function __construct(
         PDO $pdo = null,
         $table,
-        $additionalFields = array(),
         $level = Logger::DEBUG,
         $bubble = true
     )
