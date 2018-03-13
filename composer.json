@@ -1,5 +1,18 @@
 {
+  "name": "aracoool/mysql-handler",
+  "description": "MySQL handler for Monolog",
+  "keywords": [
+    "log"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Askar Fuzaylov"
+    }
+  ],
   "require": {
+    "php": ">=7.0",
     "monolog/monolog": "^1.23"
   },
   "autoload": {
