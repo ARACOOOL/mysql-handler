@@ -144,7 +144,7 @@ CREATE INDEX logs_time_index ON ' . $this->table . ' (time) USING HASH;'
             'message'      => $record['message'],
             'full_message' => $record['context']['full_message'],
             'payload'      => is_null($record['context']['payload']) ? null : json_encode($record['context']['payload']),
-            'time'         => $record['datetime']->format('Y-m-d H:i:s')
+            'time'         => $record['datetime']->format('U')
         ];
 
         // unset array keys that are passed put not defined to be stored, to prevent sql errors
