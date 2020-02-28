@@ -1,6 +1,6 @@
 <?php
 
-namespace Neat\Logger;
+namespace Aracool\Logger;
 
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
@@ -10,7 +10,7 @@ use Ramsey\Uuid\Uuid;
 
 /**
  * Class MySQLHandler
- * @package Neat\Logger
+ * @package Aracool\Logger
  */
 class MysqlHandler extends AbstractProcessingHandler
 {
@@ -37,11 +37,11 @@ class MysqlHandler extends AbstractProcessingHandler
     /**
      * @var array default fields that are stored in db
      */
-    private $defaultFields = array('id', 'channel', 'level', 'level_name', 'full_message', 'payload', 'message', 'time');
+    private $defaultFields = array('id', 'channel', 'level', 'level_name', 'trace', 'payload', 'message', 'time');
     /**
      * @var array
      */
-    private $defaultContextFields = ['full_message' => null, 'payload' => null];
+    private $defaultContextFields = ['trace' => null, 'payload' => null];
     /**
      * @var array
      */
@@ -81,7 +81,7 @@ class MysqlHandler extends AbstractProcessingHandler
     level INT NOT NULL,
     level_name VARCHAR(10) NOT NULL,
     message VARCHAR(250) NOT NULL,
-    full_message TEXT,
+    trace TEXT,
     payload TEXT,
     time DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -142,7 +142,7 @@ CREATE INDEX logs_time_index ON ' . $this->table . ' (time) USING HASH;'
             'level'        => $record['level'],
             'level_name'   => $record['level_name'],
             'message'      => $record['message'],
-            'full_message' => $record['context']['full_message'],
+            'trace' => $record['context']['trace'],
             'payload'      => is_null($record['context']['payload']) ? null : json_encode($record['context']['payload']),
             'time'         => $record['datetime']->format('Y-m-d H:i:s')
         ];
