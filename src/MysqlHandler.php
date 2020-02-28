@@ -123,7 +123,7 @@ CREATE INDEX logs_time_index ON ' . $this->table . ' (time) USING HASH;'
      * @param  $record []
      * @return void
      */
-    protected function write(array $record)
+    protected function write(array $record): void
     {
         if (!$this->initialized) {
             $this->initialize();
