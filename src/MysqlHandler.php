@@ -85,9 +85,9 @@ class MysqlHandler extends AbstractProcessingHandler
     payload TEXT,
     time DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
-CREATE INDEX logs_channel_index ON ' . $this->table . ' (channel) USING HASH;
-CREATE INDEX logs_level_index ON ' . $this->table . ' (level) USING HASH;
-CREATE INDEX logs_time_index ON ' . $this->table . ' (time) USING HASH;'
+CREATE INDEX IF NOT EXISTS logs_channel_index ON ' . $this->table . ' (channel) USING HASH;
+CREATE INDEX IF NOT EXISTS logs_level_index ON ' . $this->table . ' (level) USING HASH;
+CREATE INDEX IF NOT EXISTS logs_time_index ON ' . $this->table . ' (time) USING HASH;'
         );
 
         $this->initialized = true;
