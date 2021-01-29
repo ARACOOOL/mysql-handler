@@ -83,11 +83,11 @@ class MysqlHandler extends AbstractProcessingHandler
     message VARCHAR(250) NOT NULL,
     trace TEXT,
     payload TEXT,
-    time DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-CREATE INDEX IF NOT EXISTS logs_channel_index ON ' . $this->table . ' (channel) USING HASH;
-CREATE INDEX IF NOT EXISTS logs_level_index ON ' . $this->table . ' (level) USING HASH;
-CREATE INDEX IF NOT EXISTS logs_time_index ON ' . $this->table . ' (time) USING HASH;'
+    time DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    INDEX logs_channel_index (channel) USING HASH,
+    INDEX logs_level_index (level) USING HASH,
+    INDEX logs_time_index (time) USING HASH
+);'
         );
 
         $this->initialized = true;
@@ -142,7 +142,7 @@ CREATE INDEX IF NOT EXISTS logs_time_index ON ' . $this->table . ' (time) USING 
             'level'        => $record['level'],
             'level_name'   => $record['level_name'],
             'message'      => $record['message'],
-            'trace' => $record['context']['trace'],
+            'trace'        => $record['context']['trace'],
             'payload'      => is_null($record['context']['payload']) ? null : json_encode($record['context']['payload']),
             'time'         => $record['datetime']->format('Y-m-d H:i:s')
         ];
