@@ -1,6 +1,6 @@
 <?php
 
-namespace Aracool\Logger;
+namespace ARACOOOL\Logger;
 
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
