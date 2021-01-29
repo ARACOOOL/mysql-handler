@@ -18,7 +18,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Aracool\\Logger\\": "src/"
+      "ARACOOOL\\Logger\\": "src/"
     }
   }
 }
